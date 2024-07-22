@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: SpringMVC_Thymeleaf
+sql:
+  sqlFindAll: "SELECT * FROM userTable"
+  sqlSave: "INSERT INTO userTable (firstName, lastName) VALUES (?, ?)"
+  sqlDeleteById: "DELETE FROM userTable WHERE id=?"
+  sqlUpdateUser: "UPDATE userTable SET firstName = ?, lastName = ? WHERE id = ?"
+  sqlGetOne: "SELECT * FROM userTable WHERE id = "
