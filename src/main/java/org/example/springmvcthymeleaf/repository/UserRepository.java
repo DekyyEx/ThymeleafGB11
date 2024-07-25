@@ -16,7 +16,6 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserRepository {
 
-    @Autowired
     JdbcTemplate jdbc;
     QueryProperties sql;
 
