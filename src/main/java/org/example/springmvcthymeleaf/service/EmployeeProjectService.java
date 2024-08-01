@@ -37,32 +37,3 @@ public class EmployeeProjectService {
     }
 }
 
-
-//@Service
-//public class EmployeeProjectService {
-//
-//    private final EmployeeRepository employeeRepository;
-//    private final ProjectRepository projectRepository;
-//    private final EmployeeProjectRepository employeeProjectRepository;
-//
-//    public EmployeeProjectService(EmployeeRepository employeeRepository, ProjectRepository projectRepository, EmployeeProjectRepository employeeProjectRepository) {
-//        this.employeeRepository = employeeRepository;
-//        this.projectRepository = projectRepository;
-//        this.employeeProjectRepository = employeeProjectRepository;
-//    }
-//
-//    @Transactional
-//    public EmployeeProject addEmployeeToProject(Long employeeId, Long projectId) {
-//        Employee employee = employeeRepository.findById(employeeId)
-//                .orElseThrow(() -> new IllegalArgumentException("Invalid employee ID"));
-//        Project project = projectRepository.findById(projectId)
-//                .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
-//
-//        EmployeeProject employeeProject = new EmployeeProject();
-//        employeeProject.setEmployee(employee);
-//        employeeProject.setProject(project);
-//
-//        return employeeProjectRepository.save(employeeProject);
-//    }
-//}
-

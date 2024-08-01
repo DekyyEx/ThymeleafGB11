@@ -60,7 +60,6 @@ public class EmployeeController {
     @API.ServerError
     @Operation(summary = "Получение списка таймшитов по ID сотрудника",
             description = "Получение списка таймшитов по ID сотрудника из БД")
-//    Создать ресурс /employees/{id}/timesheets - получить все таймшиты по сотруднику
     @GetMapping("/{id}/timesheets")
     public ResponseEntity<List<Timesheet>> getEmployeeTimesheets(@Parameter(description = "id сотрудника") @PathVariable Long id) {
         return ResponseEntity.ok(employeeService.findEmployeeTimesheets(id));

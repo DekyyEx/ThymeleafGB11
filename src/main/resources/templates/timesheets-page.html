@@ -48,10 +48,6 @@
                 <td><span>&nbsp&nbsp&nbsp</span></td>
                 <td>
                     <a th:href="@{'/home/projects/{id}'(id=${timesheet.projectId})}">Перейти к проекту</a>
-                    <!--
-                    <a th:if="${timesheet.projectId != null}" th:href="@{'/home/projects/' + ${timesheet.projectId}}">перейти к проекту</a>
-                    <span th:if="${timesheet.projectId == null}">нет проекта</span>
--->
                 </td>
 
                 <td><span th:text="${timesheet.minutes}"></span></td>
