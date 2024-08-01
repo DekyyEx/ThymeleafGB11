@@ -11,9 +11,10 @@ import java.util.List;
 @EnableJpaRepositories
 public interface TimesheetRepository extends JpaRepository<Timesheet, Long> {
 
-    List<Timesheet> findByProjectId(Long projectId);
+    List<Timesheet> findAllByTimesheetEmployeeId(Long employeeId);
 
-    List<Timesheet> findByCreatedAtBeforeAndCreatedAtAfter(LocalDate createdAtBefore, LocalDate createdAtAfter);
+    List<Timesheet> findAllByTimesheetProjectId(Long employeeId);
 
-    List<Timesheet> findByEmployee(Employee employee);
+
+    List<Timesheet> findByCreatedAtBetween(LocalDate min, LocalDate max);
 }

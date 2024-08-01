@@ -31,7 +31,6 @@ public class TimesheetPageService {
       .orElseThrow();
 
     TimesheetPageDto timesheetPageParameters = new TimesheetPageDto();
-    timesheetPageParameters.setProjectName(project.getName());
     timesheetPageParameters.setId(String.valueOf(timesheet.getId()));
     timesheetPageParameters.setProjectId(timesheet.getProjectId());  
     timesheetPageParameters.setMinutes(String.valueOf(timesheet.getMinutes()));

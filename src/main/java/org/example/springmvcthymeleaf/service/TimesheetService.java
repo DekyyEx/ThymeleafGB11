@@ -1,6 +1,7 @@
 package org.example.springmvcthymeleaf.service;
 
 import org.example.springmvcthymeleaf.entities.Timesheet;
+import org.example.springmvcthymeleaf.repository.EmployeeRepository;
 import org.example.springmvcthymeleaf.repository.ProjectRepository;
 import org.example.springmvcthymeleaf.repository.TimesheetRepository;
 import org.springframework.stereotype.Service;
@@ -13,37 +14,58 @@ import java.util.Optional;
 
 @Service
 public class TimesheetService {
+
     private final TimesheetRepository timesheetRepository;
     private final ProjectRepository projectRepository;
+    private final EmployeeRepository employeeRepository;
 
-    public TimesheetService(TimesheetRepository repository, ProjectRepository projectRepository) {
-        this.timesheetRepository = repository;
+    public TimesheetService(TimesheetRepository timesheetRepository, ProjectRepository projectRepository, EmployeeRepository employeeRepository) {
+        this.timesheetRepository = timesheetRepository;
         this.projectRepository = projectRepository;
+        this.employeeRepository = employeeRepository;
     }
+
+    private Timesheet findProjectOrThrow(Long id) {
+        return timesheetRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Project with id " + id + " does not exist"));
+    }
+
+
 
     public Optional<Timesheet> findById(Long id) {
-        return timesheetRepository.findById(id);
+        //        return timesheetRepository.findById(id);
+        return Optional.of(findProjectOrThrow(id));
     }
 
+
     public List<Timesheet> findAll() {
-        return findAll(null, null);
+        return timesheetRepository.findAll();
     }
 
     public List<Timesheet> findAll(LocalDate createdAtBefore, LocalDate createdAtAfter) {
-        if (createdAtBefore == null && createdAtAfter == null) {
-            return timesheetRepository.findAll();
-        } else {
-            return timesheetRepository.findByCreatedAtBeforeAndCreatedAtAfter(createdAtBefore, createdAtAfter);
+        if (createdAtBefore != null && createdAtAfter != null) {
+            return timesheetRepository.findByCreatedAtBetween(createdAtBefore, createdAtAfter);
         }
+        return timesheetRepository.findAll();
+    }
+
+    public List<Timesheet> findAllByTimesheetProjectId(Long projectId) {
+        findProjectOrThrow(projectId);
+        return timesheetRepository.findAllByTimesheetProjectId(projectId);
+    }
+
+    public List<Timesheet> findAllByTimesheetEmployeeId(Long employeeId) {
+        findProjectOrThrow(employeeId);
+        return timesheetRepository.findAllByTimesheetEmployeeId(employeeId);
     }
 
     public Timesheet create(Timesheet timesheet) {
-        if (Objects.isNull(timesheet.getProjectId())) {
+        if (Objects.isNull(timesheet.getTimesheetProjectId())) {
             throw new IllegalArgumentException("projectId must not be null");
         }
 
-        if (projectRepository.findById(timesheet.getProjectId()).isEmpty()) {
-            throw new NoSuchElementException("'Project' с id = " + timesheet.getProjectId() + " не существует");
+        if (projectRepository.findById(timesheet.getTimesheetProjectId()).isEmpty()) {
+            throw new NoSuchElementException("Project with id " + timesheet.getTimesheetProjectId() + " does not exists");
         }
 
         timesheet.setCreatedAt(LocalDate.now());
@@ -51,14 +73,17 @@ public class TimesheetService {
     }
 
     public void delete(Long id) {
-        if (timesheetRepository.existsById(id)) {
-            timesheetRepository.deleteById(id);
-        } else {
-            throw new NoSuchElementException("Timesheet with id=" + id + " does not exist");
-        }
+        findProjectOrThrow(id);
+        timesheetRepository.deleteById(id);
     }
 
-    public List<Timesheet> findByEmployeeId(Long id) {
-        return List.of();
+    public Optional<Timesheet> update(Long id, Timesheet updatedTimesheet) {
+        return timesheetRepository.findById(id).map(existingTimesheet -> {
+            existingTimesheet.setTimesheetProjectId(updatedTimesheet.getTimesheetProjectId());
+            existingTimesheet.setTimesheetProjectId(updatedTimesheet.getTimesheetEmployeeId());
+            existingTimesheet.setMinutes(updatedTimesheet.getMinutes());
+            existingTimesheet.setCreatedAt(updatedTimesheet.getCreatedAt());
+            return timesheetRepository.save(existingTimesheet);
+        });
     }
 }
