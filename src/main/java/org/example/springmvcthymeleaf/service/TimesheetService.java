@@ -1,11 +1,14 @@
 package org.example.springmvcthymeleaf.service;
 
-import org.example.springmvcthymeleaf.entities.Timesheet;
+import org.example.springmvcthymeleaf.Aspect.Recover;
+import org.example.springmvcthymeleaf.Aspect.Timer;
 import org.example.springmvcthymeleaf.repository.EmployeeRepository;
 import org.example.springmvcthymeleaf.repository.ProjectRepository;
 import org.example.springmvcthymeleaf.repository.TimesheetRepository;
+import org.example.springmvcthymeleaf.entities.Timesheet;
+import org.slf4j.event.Level;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -13,30 +16,39 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@Timer(level = Level.TRACE)
 public class TimesheetService {
 
     private final TimesheetRepository timesheetRepository;
     private final ProjectRepository projectRepository;
     private final EmployeeRepository employeeRepository;
 
+
+    public TimesheetService(TimesheetService timesheetService) {
+        this(timesheetService.timesheetRepository, timesheetService.projectRepository, timesheetService.employeeRepository);
+    }
+
+    @Autowired
     public TimesheetService(TimesheetRepository timesheetRepository, ProjectRepository projectRepository, EmployeeRepository employeeRepository) {
         this.timesheetRepository = timesheetRepository;
         this.projectRepository = projectRepository;
         this.employeeRepository = employeeRepository;
     }
 
-    private Timesheet findProjectOrThrow(Long id) {
-        return timesheetRepository.findById(id)
+
+    private void findProjectOrThrow(Long id) {
+        timesheetRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Project with id " + id + " does not exist"));
     }
 
-
-
+    @Timer
+    @Recover(noRecoverFor = {
+            NoSuchElementException.class,
+            IllegalStateException.class})
     public Optional<Timesheet> findById(Long id) {
-        //        return timesheetRepository.findById(id);
-        return Optional.of(findProjectOrThrow(id));
+        return Optional.ofNullable(timesheetRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Timesheet with id " + id + " does not exist")));
     }
-
 
     public List<Timesheet> findAll() {
         return timesheetRepository.findAll();
@@ -59,6 +71,7 @@ public class TimesheetService {
         return timesheetRepository.findAllByTimesheetEmployeeId(employeeId);
     }
 
+    @Recover
     public Timesheet create(Timesheet timesheet) {
         if (Objects.isNull(timesheet.getTimesheetProjectId())) {
             throw new IllegalArgumentException("projectId must not be null");
@@ -80,7 +93,7 @@ public class TimesheetService {
     public Optional<Timesheet> update(Long id, Timesheet updatedTimesheet) {
         return timesheetRepository.findById(id).map(existingTimesheet -> {
             existingTimesheet.setTimesheetProjectId(updatedTimesheet.getTimesheetProjectId());
-            existingTimesheet.setTimesheetProjectId(updatedTimesheet.getTimesheetEmployeeId());
+            existingTimesheet.setTimesheetEmployeeId(updatedTimesheet.getTimesheetEmployeeId());
             existingTimesheet.setMinutes(updatedTimesheet.getMinutes());
             existingTimesheet.setCreatedAt(updatedTimesheet.getCreatedAt());
             return timesheetRepository.save(existingTimesheet);

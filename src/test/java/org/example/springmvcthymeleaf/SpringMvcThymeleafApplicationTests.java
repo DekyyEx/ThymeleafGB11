@@ -9,5 +9,4 @@ class SpringMvcThymeleafApplicationTests {
     @Test
     void contextLoads() {
     }
-
 }
